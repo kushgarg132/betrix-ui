@@ -1,85 +1,52 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import apiClient from "../api/api";  // Axios instance
+import apiClient from "../api/api";
 
 const HomePage = () => {
   const [wallet, setWallet] = useState(0);
-  const [transactions, setTransactions] = useState([]);
   const navigate = useNavigate();
+  const username = sessionStorage.getItem("username");
 
   useEffect(() => {
     const fetchWallet = async () => {
-      try {
-        const response = await apiClient.get("/wallet/balance?username=sid123");
-        setWallet(response.data);
-      } catch (error) {
-        console.error("Error fetching wallet:", error);
-      }
-    };
-
-    const fetchTransactions = async () => {
-      try {
-        const response = await apiClient.get("/transactions/history?username=sid123");
-        setTransactions(response.data);
-      } catch (error) {
-        console.error("Error fetching transactions:", error);
+      if (username) {
+        try {
+          const response = await apiClient.get(`/wallet/balance?username=${username}`);
+          setWallet(response.data);
+        } catch (error) {
+          console.error("Error fetching wallet balance:", error);
+        }
+      } else {
+        navigate("/login");  // Redirect to login if no username is found
       }
     };
 
     fetchWallet();
-    fetchTransactions();
-  }, []);
+  }, [username, navigate]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("authToken");
-    navigate("/login");
+  const handleGameNavigation = (gamePath) => {
+    navigate(gamePath);
   };
 
   return (
     <div className="p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Welcome to Betrix 🎲</h1>
-        <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded">
-          Logout
-        </button>
-      </div>
-
-      <div className="mb-8">
+      <h1 className="text-3xl font-bold mb-6">Welcome to Betrix 🎲</h1>
+      <div className="mb-4">
         <h2 className="text-xl font-semibold">Wallet Balance: ₹{wallet}</h2>
       </div>
-
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">Available Games</h2>
-        <div className="grid grid-cols-3 gap-4">
-          <GameCard title="Dice Game" description="Roll the dice and test your luck!" />
-          <GameCard title="Card Game" description="Pick a card and win big!" />
-          <GameCard title="Spin Wheel" description="Spin the wheel for exciting prizes!" />
-        </div>
-      </div>
-
-      <div>
-        <h2 className="text-xl font-semibold mb-4">Recent Transactions</h2>
-        <ul className="bg-gray-100 p-4 rounded">
-          {transactions.length > 0 ? (
-            transactions.map((transaction, index) => (
-              <li key={index} className="border-b py-2">
-                {transaction.timestamp} - {transaction.type}: ₹{transaction.amount}  {transaction.description}
-              </li>
-            ))
-          ) : (
-            <p>No recent transactions</p>
-          )}
-        </ul>
+      <div className="grid grid-cols-3 gap-4">
+        <GameCard title="Dice Game" onClick={() => handleGameNavigation("/games/dice")} />
+        <GameCard title="Card Game" onClick={() => handleGameNavigation("/games/card")} />
+        <GameCard title="Spin Wheel" onClick={() => handleGameNavigation("/games/spin")} />
       </div>
     </div>
   );
 };
 
-const GameCard = ({ title, description }) => (
+const GameCard = ({ title, onClick }) => (
   <div className="border p-4 rounded shadow hover:shadow-lg transition">
     <h3 className="text-lg font-bold">{title}</h3>
-    <p>{description}</p>
-    <button className="mt-2 bg-blue-500 text-white px-4 py-2 rounded">
+    <button onClick={onClick} className="mt-2 bg-blue-500 text-white px-4 py-2 rounded">
       Play Now
     </button>
   </div>

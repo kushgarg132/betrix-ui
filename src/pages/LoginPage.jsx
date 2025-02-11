@@ -12,12 +12,11 @@ function LoginPage() {
     e.preventDefault();
     try {
       const response = await apiClient.post("/auth/login", { username, password });
-      
-      // Save token to localStorage
-      localStorage.setItem("authToken", response.data.token);
-      
-      // Redirect to home page
-      navigate("/");
+      if (response.status === 200) {
+        sessionStorage.setItem("username", username); 
+        localStorage.setItem("authToken", response.data);
+        navigate("/");
+      }
     } catch (error) {
       setError("Invalid username or password.");
     }
