@@ -1,4 +1,5 @@
 import { useState } from "react";
+import apiClient from "../api/api";
 
 export default function DiceGamePage() {
   const [betAmount, setBetAmount] = useState("");
@@ -6,6 +7,7 @@ export default function DiceGamePage() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const username = sessionStorage.getItem("username");
   const handlePlayDice = async () => {
     if (!betAmount || !betNumber || betNumber < 1 || betNumber > 6) {
       alert("Please enter a valid bet amount and choose a number between 1 and 6.");
@@ -16,8 +18,7 @@ export default function DiceGamePage() {
     setResult(null);
 
     try {
-      const response = await fetch(
-        `http://localhost:8080/api/games/dice/play?username=sid123&betAmount=${parseFloat(betAmount)}&betNumber=${parseInt(betNumber)}`,
+      const response = await clientApi.post(`games/dice/play?username=${username}&betAmount=${parseFloat(betAmount)}&betNumber=${parseInt(betNumber)}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

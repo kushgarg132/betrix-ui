@@ -13,7 +13,7 @@ const DiceGame = () => {
         `/games/dice/play?username=${username}&betAmount=${betAmount}&betNumber=${betNumber}`
       );
       console.log("Dice game result:", response.data);
-      setResult(response.data); // Backend should return success/failure message
+      setResult(response.data.outcome); // Backend should return success/failure message
     } catch (error) {
       console.error("Error playing dice game:", error);
       setResult("An error occurred. Please try again.");
